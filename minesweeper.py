@@ -8,6 +8,11 @@ It only works on a very particular version of Minesweeper called Mines.exe on
 Windows.
 """
 
+import pyautogui
+
+#Data about this Minesweeper game.
+square_size = 20
+
 def play():
 	"""
 	Performs one loop of the game, one move.
@@ -42,7 +47,10 @@ def click(move, corner_coordinates):
 	:param corner_coordinates: The pixel coordinate of the top-left corner of
 	the board on the screen.
 	"""
-	print("click() not implemented yet.")
+	x = corner_coordinates[0] + move[0] * square_size + square_size / 2 #Click the middle of the button.
+	y = corner_coordinates[1] + move[1] * square_size + square_size / 2
+	pyautogui.moveTo(x, y)
+	pyautogui.click()
 
 if __name__ == "__main__":
 	while play():
