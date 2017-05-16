@@ -12,6 +12,7 @@ import pyautogui
 import pyscreenshot
 
 #Data about this Minesweeper game.
+number_of_mines = 35 #Total number of mines in the game.
 square_size = 20 #Size of one cell of the game, in pixels.
 window_recognise_kernel = [ #A number of pixel colours that are hopefully unique to the Minesweeper game window by which to locate the window. Must be rectangular.
 	[ #First row of pixels.
@@ -175,7 +176,32 @@ def think(board):
 	:param board: The current board state.
 	:return: The coordinates of the move to make.
 	"""
-	print("think() not implemented yet.")
+	best_chance = 1
+	best_x = -1
+	best_y = -1
+	for x in range(len(board)):
+		for y in range(len(board)):
+			if board[x][y] != -1: #Known cell.
+				continue
+			this_chance = chance(x, y, board)
+			if this_chance < best_chance:
+				best_x = x
+				best_y = y
+				best_chance = this_chance
+	return [best_x, best_y]
+
+def chance(x, y, board):
+	"""
+	Determine the chance of a cell on the board having a mine.
+	:param x: The X-coordinate of the cell to determine the chance for.
+	:param y: The Y-coordinate of the cell to determine the chance for.
+	:param board: The current state of the board, as far as is known.
+	:return: A number between 0 and 1 that indicates the chance of this cell
+	having a mine.
+	"""
+	if board[x][y] != -1: #Known cell.
+		return 0
+	print("chance() is not yet implemented.")
 
 def click(move, corner_coordinates):
 	"""
