@@ -9,6 +9,7 @@ Windows.
 """
 
 import pyautogui
+import pyscreenshot
 
 #Data about this Minesweeper game.
 square_size = 20
@@ -29,7 +30,38 @@ def look():
 	:return: A 2D grid indicating the number of mines around each tile. The
 	number -1 indicates that the number is unknown.
 	"""
-	print("look() not implemented yet.")
+	screenshot = pyscreenshot.grab()
+	board_screenshot, corner_coordinates = crop(screenshot)
+	result = []
+	for x in range(0, board_screenshot.width / square_size):
+		result.append([])
+		for y in range(0, board_screenshot.height / square_size):
+			result[x].append(recognise(board_screenshot, x, y))
+	return result, corner_coordinates
+
+def crop(screenshot):
+	"""
+	Crops a full-screen screenshot to just the part that has the game board on
+	it.
+	:param screenshot: A full-screen screenshot with the Minesweeper board
+	somewhere on it.
+	:return: A cropped screenshot that just has the Minesweeper board.
+	"""
+	print("crop() not implemented yet.")
+
+def recognise(screenshot, x, y):
+	"""
+	Recognises the current state of a cell in Minesweeper and returns that state
+	as a number.
+
+	The number indicates the number of mines around the cell. A number of -1
+	indicates that it's unknown.
+	:param screenshot: A screenshot of the board.
+	:param x: The x-coordinate of the cell to recognise.
+	:param y: The y-coordinate of the cell to recognise.
+	:return: The number of mines around the cell, or -1 if it's unknown.
+	"""
+	print("recognise() not implemented yet.")
 
 def think(board):
 	"""
