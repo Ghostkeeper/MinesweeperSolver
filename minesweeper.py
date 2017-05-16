@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
+"""
+This little script plays the game of Minesweeper for you.
+
+It only works on a very particular version of Minesweeper called Mines.exe on
+Windows.
+"""
+
 def play():
 	"""
 	Performs one loop of the game, one move.
