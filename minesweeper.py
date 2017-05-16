@@ -71,10 +71,8 @@ def play():
 	:return: ``True`` if a move was made, or ``False`` if no move was possible.
 	"""
 	board, corner_coordinates = look()
-	for row in board:
-		print(row)
-	#move = think(board)
-	click([2, 1], corner_coordinates)
+	move = think(board)
+	click(move, corner_coordinates)
 
 def look():
 	"""
