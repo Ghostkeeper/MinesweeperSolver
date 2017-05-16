@@ -40,6 +40,30 @@ height_recognise_kernel = [ #Vertical kernel to find the height of the board. Th
 	[255, 255, 255],
 	[255, 255, 255]
 ]
+sample_coordinates = { #For each number, where to sample relative to the cell's top-left corner.
+	-1: [10, 10],
+	0:  [11, 10],
+	1:  [11, 10],
+	2:  [10, 11],
+	3:  [10, 9],
+	4:  [12, 10],
+	5:  [10, 9],
+	6:  [10, 9],
+	7:  [10, 10],
+	8:  [10, 10]
+}
+sample_colours = { #For each number, the expected colour to find in the sample coordinates.
+	-1: [240, 240, 240],
+	0:  [228, 228, 228],
+	1:  [0, 0, 255],
+	2:  [0, 127, 0],
+	3:  [251, 0, 0],
+	4:  [0, 0, 127],
+	5:  [127, 0, 0],
+	6:  [0, 127, 127],
+	7:  [0, 0, 0],
+	8:  [127, 127, 127]
+}
 
 def play():
 	"""
@@ -47,8 +71,10 @@ def play():
 	:return: ``True`` if a move was made, or ``False`` if no move was possible.
 	"""
 	board, corner_coordinates = look()
-	move = think(board)
-	click(move, corner_coordinates)
+	for row in board:
+		print(row)
+	#move = think(board)
+	click([2, 1], corner_coordinates)
 
 def look():
 	"""
@@ -62,7 +88,7 @@ def look():
 	result = []
 	for x in range(0, int(board_screenshot.width / square_size)):
 		result.append([])
-		for y in range(0, board_screenshot.height / square_size):
+		for y in range(0, int(board_screenshot.height / square_size)):
 			result[x].append(recognise(board_screenshot, x, y))
 	return result, corner_coordinates
 
@@ -134,7 +160,12 @@ def recognise(screenshot, x, y):
 	:param y: The y-coordinate of the cell to recognise.
 	:return: The number of mines around the cell, or -1 if it's unknown.
 	"""
-	print("recognise() not implemented yet.")
+	for number, coordinates in sample_coordinates.items():
+		r, g, b = screenshot.getpixel((x * square_size + coordinates[0], y * square_size + coordinates[1]))
+		colour = sample_colours[number]
+		if r == colour[0] and g == colour[1] and b == colour[2]:
+			return number
+	raise Exception("Didn't recognise the colour at position (" + str(x) + "," + str(y) + ").")
 
 def think(board):
 	"""
