@@ -12,7 +12,34 @@ import pyautogui
 import pyscreenshot
 
 #Data about this Minesweeper game.
-square_size = 20
+square_size = 20 #Size of one cell of the game, in pixels.
+window_recognise_kernel = [ #A number of pixel colours that are hopefully unique to the Minesweeper game window by which to locate the window. Must be rectangular.
+	[ #First row of pixels.
+		[233, 219, 216], #R, G, B.
+		[243, 152, 150],
+		[221, 203, 200],
+		[184, 187, 183],
+		[152, 183, 146]
+	],
+	[ #Second row of pixels.
+		[236, 209, 206],
+		[224, 81, 79],
+		[198, 176, 171],
+		[193, 192, 192],
+		[131, 179, 126]
+	]
+]
+window_recognise_offset = [27, 73] #The offset of the upper-left corner of the game board relative to the window_recognise_kernel, in pixels.
+width_recognise_kernel = [ #Horizontal kernel to find the width of the board. This is searched for halfway through the height of the first cell.
+	[255, 255, 255],
+	[255, 255, 255],
+	[255, 255, 255]
+]
+height_recognise_kernel = [ #Vertical kernel to find the height of the board. This is searched for halfway through the width of the first cell.
+	[255, 255, 255],
+	[255, 255, 255],
+	[255, 255, 255]
+]
 
 def play():
 	"""
@@ -33,7 +60,7 @@ def look():
 	screenshot = pyscreenshot.grab()
 	board_screenshot, corner_coordinates = crop(screenshot)
 	result = []
-	for x in range(0, board_screenshot.width / square_size):
+	for x in range(0, int(board_screenshot.width / square_size)):
 		result.append([])
 		for y in range(0, board_screenshot.height / square_size):
 			result[x].append(recognise(board_screenshot, x, y))
@@ -47,7 +74,53 @@ def crop(screenshot):
 	somewhere on it.
 	:return: A cropped screenshot that just has the Minesweeper board.
 	"""
-	print("crop() not implemented yet.")
+	kernel_height = len(window_recognise_kernel)
+	if kernel_height <= 0:
+		raise Exception("Kernel to recognise window is not filled.")
+	kernel_width = len(window_recognise_kernel[0])
+
+	#Search for the kernel on the screenshot.
+	for x in range(0, screenshot.width - kernel_width): #Kernel position.
+		for y in range(0, screenshot.height - kernel_height):
+			for sample_x in range(0, kernel_width): #Sample in kernel window.
+				for sample_y in range(0, kernel_height):
+					kernel_pixel = window_recognise_kernel[sample_y][sample_x]
+					r, g, b = screenshot.getpixel((x + sample_x, y + sample_y))
+					if r != kernel_pixel[0] or g != kernel_pixel[1] or b != kernel_pixel[2]:
+						break #Continue with the next kernel position.
+				else:
+					continue
+				break
+			else: #No breaking out because of wrong pixels after whole kernel. We found our match!
+				x += window_recognise_offset[0]
+				y += window_recognise_offset[1]
+				print("Found board at position (" + str(x) + "," + str(y) + ")!")
+				#Find the width.
+				for x2 in range(x, screenshot.width - len(width_recognise_kernel)):
+					for sample_x in range(0, len(width_recognise_kernel)):
+						kernel_pixel = width_recognise_kernel[sample_x]
+						r, g, b = screenshot.getpixel((x2 + sample_x, y + square_size / 2))
+						if r != kernel_pixel[0] or g != kernel_pixel[1] or b != kernel_pixel[2]:
+							break #Continue with the next kernel position.
+					else: #Didn't break, so we have our match.
+						board_right = x2
+						break
+				else:
+					raise Exception("Couldn't find the width of the board.")
+				for y2 in range(y, screenshot.height - len(height_recognise_kernel)):
+					for sample_y in range(0, len(height_recognise_kernel)):
+						kernel_pixel = height_recognise_kernel[sample_y]
+						r, g, b = screenshot.getpixel((x + square_size / 2, y2 + sample_y))
+						if r != kernel_pixel[0] or g != kernel_pixel[1] or b != kernel_pixel[2]:
+							break #Continue with the next kernel position.
+					else: #Didn't break, so we have our match.
+						board_bottom = y2
+						break
+				else:
+					raise Exception("Couldn't find the height of the board.")
+				cropped = screenshot.crop((x, y, board_right, board_bottom))
+				return cropped, [x, y]
+	raise Exception("Couldn't find the game window.")
 
 def recognise(screenshot, x, y):
 	"""
