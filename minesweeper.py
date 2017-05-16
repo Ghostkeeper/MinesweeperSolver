@@ -72,7 +72,10 @@ def play():
 	"""
 	board, corner_coordinates = look()
 	move = think(board)
+	if move[0] < 0 or move[1] < 0: #No move found.
+		return False
 	click(move, corner_coordinates)
+	return True
 
 def look():
 	"""
